@@ -14,6 +14,7 @@ class JmxMetrics:
 		self.metric_query = metric_query
 		self.query_timeout = query_timeout
 		self.metrics = "#JMX Exporter metrics \n"
+		self.allowed_types = ['Long','Integer','Boolean']
 
 	def fetch_metrics(self):
 		jmxConnection = JMXConnection(self.uri)
@@ -21,15 +22,7 @@ class JmxMetrics:
 		try:
 			metrics = jmxConnection.query(jmxQuery,timeout=self.query_timeout)
 			for metric in metrics:
-				if metric.value == None:
-					continue
-				if metric.value_type == 'String':
-					continue
-				if metric.value_type == 'ObjectName':
-					continue
-				if metric.value_type == 'TabularDataSupport':
-					continue
-				if metric.value_type == 'String[]':
+				if metric.value_type not in self.allowed_types:
 					continue
 				if metric.value_type == 'Boolean':
 					metric.value = int(metric.value)
