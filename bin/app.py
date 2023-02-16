@@ -31,7 +31,7 @@ class JmxMetrics:
 					continue
 				if metric.value_type == 'String[]':
 					continue
-				if metric.value == 'Boolean':
+				if metric.value_type == 'Boolean':
 					metric.value = int(metric.value)
 				metric_name = metric.to_query_string().replace(".","").replace("name=","").replace("type=","").replace(" ","_").replace(":","_").replace("/","_").replace(",","_").replace("'","").lower()
 				app.logger.info("Metric Name: {}, Metric value: {}".format(metric_name, metric.value))
