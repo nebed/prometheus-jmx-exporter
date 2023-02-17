@@ -40,6 +40,12 @@ class JmxMetrics:
 logging.getLogger().setLevel(logging.DEBUG)
 app = Flask(__name__)
 
+@app.route('/healthz')
+def show_health():
+	response = make_response("Health: OK", 200)
+	response.mimetype = "text/plain"
+	return response
+
 @app.route('/metrics')
 def show_metrics():
 	target = request.args.get('target', default = '', type = str)
