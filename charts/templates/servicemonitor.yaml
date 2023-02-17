@@ -1,0 +1,36 @@
+{{- if .Values.serviceMonitor.create -}}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "prometheus-jmx-exporter.fullname" . }}
+  labels:
+    {{- include "prometheus-jmx-exporter.labels" . | nindent 4 }}
+    release: prometheus-operator
+  {{- with .Values.serviceMonitor.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  endpoints:
+  {{- range $k, $v := .Values.serviceMonitor.endpoints }}
+  {{- range $query := $v.query }}
+  - interval: {{ default "3m" $v.interval }}
+    scrapeTimeout: {{ default "150s" $v.scrapeTimeout }}
+    path: /metrics
+    port: metrics
+    params:
+      target:
+      - {{ $v.name }}
+      timeout:
+      - {{ default "100" $v.timeout | quote }}
+      query:
+      - {{ $query | quote }}
+  {{- end }}
+  {{- end }}
+  namespaceSelector:
+    matchNames:
+    - {{ .Release.Namespace }}
+  selector:
+    matchLabels:
+      {{- include "prometheus-jmx-exporter.labels" . | nindent 6 }}
+  {{- end }}
