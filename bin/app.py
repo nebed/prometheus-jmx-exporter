@@ -26,7 +26,7 @@ class JmxMetrics:
 					continue
 				if metric.value_type == 'Boolean':
 					metric.value = int(metric.value)
-				metric_name = metric.to_query_string().replace(".","").replace("name=","").replace("type=","").replace(" ","_").replace(":","_").replace("/","_").replace(",","_").replace("'","").lower()
+				metric_name = metric.to_query_string().replace(".","_").replace("name=","").replace("type=","").replace(" ","_").replace(":","_").replace("/","_").replace(",","_").replace("'","")
 				app.logger.info("Metric Name: {}, Metric value: {}".format(metric_name, metric.value))
 				self.metrics += '%s{target="%s"} %s\n' % (metric_name, self.target, metric.value)
 			response = make_response(self.metrics, 200)
