@@ -24,9 +24,10 @@ serviceMonitor:
   endpoints: []
   # - name: somethingservice.namepsace:9999 #remote jmx interface host and port
   #   query: []
-  #   - "kafka.server:type=KafkaRequestHandlerPool,name=RequestHandlerAvgIdlePercent"
-  #   - "kafka.server:type=BrokerTopicMetrics,name=AllTopicsBytesRejectedPerSec"
-  #   - "java.lang:*"
+  #   - name: "kafka.server:type=KafkaRequestHandlerPool,name=RequestHandlerAvgIdlePercent"
+  #   - name: "kafka.server:type=BrokerTopicMetrics,name=AllTopicsBytesRejectedPerSec,topic=*,partition=*"
+  #     labels: '{"topic":"{topic}","partition":"{partition}"}'
+  #   - name: "java.lang:*"
   #   timeout: 100 #timeout for query to jmx interface on the jmx exporter
   #   interval: 3m #interval between scraping endpoint
   #   scrapeTimeout: 150s #timeout for sraping endpoint. queries over large namespaces take  time

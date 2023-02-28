@@ -13,18 +13,22 @@ metadata:
 spec:
   endpoints:
   {{- range $k, $v := .Values.serviceMonitor.endpoints }}
-  {{- range $query := $v.query }}
-  - interval: {{ default "3m" $v.interval }}
-    scrapeTimeout: {{ default "150s" $v.scrapeTimeout }}
+  {{- range $q,$c := $v.query }}
+  - interval: {{ default "1m" $v.interval }}
+    scrapeTimeout: {{ default "40s" $v.scrapeTimeout }}
     path: /metrics
     port: metrics
     params:
       target:
       - {{ $v.name }}
       timeout:
-      - {{ default "100" $v.timeout | quote }}
+      - {{ default "35" $v.timeout | quote }}
       query:
-      - {{ $query | quote }}
+      - {{ $c.name | quote }}
+      {{- if $c.labels }}
+      labels:
+      - {{ $c.labels | quote }}
+      {{- end }}
   {{- end }}
   {{- end }}
   namespaceSelector:
