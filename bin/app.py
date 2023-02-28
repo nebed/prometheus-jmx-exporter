@@ -32,7 +32,7 @@ class JmxMetrics:
 				metric.metric_name = metric.metric_name.replace("_{name}","").replace("_{attributeKey}","").replace("_{attribute}","")
 				app.logger.info("Metric Name: {}, Metric labels: {}, Metric value: {}".format(metric.metric_name, metric.metric_labels, metric.value))
 				metric.metric_labels.update(target=self.target)
-				self.metrics += '%s{%s} %s\n' % (metric.metric_name, "".join(str(key) + "=" + str(value) + "," for key, value in metric.metric_labels.items()), metric.value)
+				self.metrics += '%s{%s} %s\n' % (metric.metric_name, ",".join(str(key) + "=" + str(value) for key, value in metric.metric_labels.items()), metric.value)
 			response = make_response(self.metrics, 200)
 			response.mimetype = "text/plain"
 			return response
