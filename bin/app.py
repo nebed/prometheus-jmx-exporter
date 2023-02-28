@@ -4,7 +4,7 @@
 
 from flask import Flask, request, make_response
 from jmxquery import JMXConnection, JMXQuery, MetricType
-from json import loads
+import json
 import logging
 
 class JmxMetrics:
@@ -21,7 +21,7 @@ class JmxMetrics:
 
 	def fetch_metrics(self):
 		jmxConnection = JMXConnection(self.uri)
-		jmxQuery = [JMXQuery(self.metric_query, metric_name=self.metric_prefix+"_{type}_{name}_{attribute}_{attributeKey}", metric_labels=self.metric_labels)]
+		jmxQuery = [JMXQuery(self.metric_query, metric_name=self.metric_prefix+"_{type}_{name}_{attribute}_{attributeKey}", metric_labels={"topic" : "{topic}", "partition" : "{partition}"})]
 		try:
 			metrics = jmxConnection.query(jmxQuery,timeout=self.query_timeout)
 			for metric in metrics:
@@ -30,9 +30,10 @@ class JmxMetrics:
 				if metric.value_type == 'Boolean':
 					metric.value = int(metric.value)
 				metric.metric_name = metric.metric_name.replace("_{name}","").replace("_{attributeKey}","").replace("_{attribute}","")
+				metric.metric_labels["target"] = self.target
+				metric.metric_labels = ",".join(str(key) + '="' + str(value) + '"' for key, value in metric.metric_labels.items())
 				app.logger.info("Metric Name: {}, Metric labels: {}, Metric value: {}".format(metric.metric_name, metric.metric_labels, metric.value))
-				metric.metric_labels.update(target=self.target)
-				self.metrics += '%s{%s} %s\n' % (metric.metric_name, ",".join(str(key) + "=" + str(value) for key, value in metric.metric_labels.items()), metric.value)
+				self.metrics += '%s{%s} %s\n' % (metric.metric_name, metric.metric_labels, metric.value)
 			response = make_response(self.metrics, 200)
 			response.mimetype = "text/plain"
 			return response
@@ -57,7 +58,7 @@ def show_metrics():
 	query_timeout = request.args.get('timeout', default = 50, type = int)
 	metric_labels = request.args.get('labels', default = None, type = str)
 	if metric_labels != None:
-		metric_labels = loads(metric_labels)
+		metric_labels = json.loads(metric_labels)
 	jmx = JmxMetrics(target,metric_query,query_timeout,metric_labels)
 	response = jmx.fetch_metrics()
 	return response
