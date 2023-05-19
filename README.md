@@ -8,3 +8,6 @@ possible parameters:
 - query: jmx query example - "java.lang:*"
 - timeout: query timeout in seconds - default 50 
 
+
+`Using jmxquery`
+
